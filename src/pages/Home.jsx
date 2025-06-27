@@ -2,6 +2,9 @@ import React from "react";
 import { Header } from "../components/Header";
 import { Steps } from "../components/Steps";
 import { BgSlider } from "../components/BgSlider";
+import { Testimonials } from "../components/Testimonials.jsx";
+import { Upload } from "../components/Upload.jsx";
+import { Footer } from "../components/Footer.jsx";
 
 export const Home = () => {
   return (
@@ -10,6 +13,9 @@ export const Home = () => {
         <Header />
         <Steps/>
         <BgSlider/>
+        <Testimonials/>
+        <Upload/>
+        
       </div>
     </>
   );

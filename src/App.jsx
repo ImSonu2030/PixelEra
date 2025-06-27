@@ -1,7 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
-import { Navbar } from './components/Navbar';
+
 import { Home } from './pages/Home';
 import { Result } from './pages/Result';
+import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
 import { BuyCredit } from './pages/BuyCredit';
 
 export const App = () => {
@@ -13,6 +15,7 @@ export const App = () => {
         <Route path="/result" element={<Result />} />
         <Route path="/buy" element={<BuyCredit />} />
       </Routes>
+      <Footer/>
     </div>
   );
 };

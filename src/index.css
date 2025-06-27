@@ -1,18 +1,47 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
-.slider {
+.modern-slider {
   -webkit-appearance: none;
-  height: 100%;
+  -moz-appearance: none;
+  appearance: none;
   background: transparent;
+  outline: none;
 }
 
-.slider::-webkit-slider-thumb {
-  appearance:  none;
-  width: 30px;
-  min-height: 30px;
-  background-image: url(./assets/slide_icon.svg);
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+.modern-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+  cursor: grab;
+}
+
+.modern-slider:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+
+.modern-slider::-moz-range-thumb {
+  width: 0;
+  height: 0;
+  background: transparent;
+  border: none;
+  cursor: grab;
+}
+
+.modern-slider:active::-moz-range-thumb {
+  cursor: grabbing;
+}
+
+.modern-slider::-ms-thumb {
+  width: 0;
+  height: 0;
+  background: transparent;
+  border: none;
+  cursor: grab;
+}
+
+.modern-slider:active::-ms-thumb {
+  cursor: grabbing;
 }
