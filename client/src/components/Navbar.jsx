@@ -1,12 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { assets } from "../assets/assets.jsx";
+import React, { useState, useEffect, useContext } from "react";
+
 import { Link } from "react-router-dom";
+import { assets } from "../assets/assets.jsx";
+import { AppContext } from "../context/AppContext.jsx";
 import { useClerk, UserButton, useUser } from "@clerk/clerk-react";
 
 export const Navbar = () => {
   const [isDark, setIsDark] = useState(false);
   const { openSignIn } = useClerk();
   const { isSignedIn, user } = useUser();
+  const { credit, loadCreditData } = useContext(AppContext);
+
+  // load credit of user when he's signed in
+  useEffect(() => {
+    if (isSignedIn) {
+      loadCreditData();
+      console.log("my credit balance: " + credit);
+    }
+  }, [isSignedIn]);
 
   // Check for saved theme preference or default to light mode
   useEffect(() => {
@@ -54,7 +65,7 @@ export const Navbar = () => {
           {isDark ? (
             // Sun icon for light mode
             <svg
-              className="w-5 h-5 text-yellow-500"
+              className="w-5 h-5 text-amber-50"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -78,7 +89,28 @@ export const Navbar = () => {
 
         {/* Sign Up Button */}
         {isSignedIn ? (
-            <div><UserButton/></div>
+          <div className="flex items-center gap-3 text-zinc-900 dark:text-zinc-100 ">
+            <button
+              className="flex items-center gap-2 
+             bg-cyan-200 dark:bg-zinc-800/60 
+             border border-zinc-700/20 dark:border-zinc-700/40
+             font-medium px-2 sm:px-3 py-1 sm:py-1.5 
+             rounded-xl
+             hover:bg-white/20 dark:hover:bg-zinc-700/70 
+             transition-all duration-300"
+            >
+              <img
+                src={assets.credit_icon}
+                alt="credit balance"
+                width={22}
+                height={22}
+              />
+              <p className="text-sm sm:text-base">{credit}</p>
+            </button>
+            
+            <p className="hidden sm:block">Hi, {user.fullName}</p>
+            <UserButton />
+          </div>
         ) : (
           <button
             onClick={() => openSignIn({})}
