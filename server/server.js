@@ -7,9 +7,10 @@ const PORT = process.env.PORT || 4000;
 const app=express();
 
 // Intialize Middlerwares
-app.use(cors());
-app.use(express.json());
-await connectDB();
+// app.use(cors());
+// app.use(express.json());
+// await connectDB();
+
 // API routes
 app.get('/',(req,res)=>res.send("API Working"))
 app.listen(PORT,()=>console.log('server working at port '+PORT))
