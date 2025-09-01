@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { assets } from "../assets/assets";
+import { AppContext } from "../context/AppContext";
 
 export const Header = () => {
+    const {removeBg} = useContext(AppContext);
+
     return (
       <section className="relative min-h-screen flex items-center bg-gradient-to-br from-gray-50 via-white to-violet-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-violet-950/30 transition-colors duration-300">
         
@@ -36,7 +39,7 @@ export const Header = () => {
             {/* CTA Section */}
             <div className="space-y-6">
               <div>
-                <input type="file" id="upload1" hidden accept="image/*" />
+                <input onChange={e=>removeBg(e.target.files[0])} type="file" id="upload1" hidden accept="image/*" />
                 <label
                   htmlFor="upload1"
                   className="group inline-flex items-center gap-4 px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold text-lg rounded-2xl cursor-pointer shadow-lg hover:shadow-2xl dark:shadow-purple-900/25 transform hover:scale-105 active:scale-95 transition-all duration-300"

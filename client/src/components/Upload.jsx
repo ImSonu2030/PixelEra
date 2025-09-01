@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { AppContext } from "../context/AppContext";
 
 export const Upload = () => {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const {removeBg} = useContext(AppContext);
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -23,13 +25,18 @@ export const Upload = () => {
       const file = e.dataTransfer.files[0];
       if (file.type.startsWith('image/')) {
         setSelectedFile(file);
+        removeBg(file);
       }
     }
   };
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      if (file.type.startsWith('image/')) {
+        setSelectedFile(file);
+        removeBg(file);
+      }
     }
   };
 

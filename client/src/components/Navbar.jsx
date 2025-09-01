@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets.jsx";
 import { AppContext } from "../context/AppContext.jsx";
 import { useClerk, UserButton, useUser } from "@clerk/clerk-react";
@@ -10,12 +10,11 @@ export const Navbar = () => {
   const { openSignIn } = useClerk();
   const { isSignedIn, user } = useUser();
   const { credit, loadCreditData } = useContext(AppContext);
-
+  const navigate = useNavigate();
   // load credit of user when he's signed in
   useEffect(() => {
     if (isSignedIn) {
       loadCreditData();
-      console.log("my credit balance: " + credit);
     }
   }, [isSignedIn]);
 
@@ -59,7 +58,7 @@ export const Navbar = () => {
         {/* Dark Mode Toggle Button */}
         <button
           onClick={toggleDarkMode}
-          className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300"
+          className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300 cursor-pointer"
           aria-label="Toggle dark mode"
         >
           {isDark ? (
@@ -91,11 +90,12 @@ export const Navbar = () => {
         {isSignedIn ? (
           <div className="flex items-center gap-3 text-zinc-900 dark:text-zinc-100 ">
             <button
+              onClick={credit == 0 ? () => navigate("/buy") : null}
               className="flex items-center gap-2 
              bg-cyan-200 dark:bg-zinc-800/60 
              border border-zinc-700/20 dark:border-zinc-700/40
              font-medium px-2 sm:px-3 py-1 sm:py-1.5 
-             rounded-xl
+             rounded-xl cursor-pointer
              hover:bg-white/20 dark:hover:bg-zinc-700/70 
              transition-all duration-300"
             >
@@ -107,8 +107,10 @@ export const Navbar = () => {
               />
               <p className="text-sm sm:text-base">{credit}</p>
             </button>
-            
-            <p className="hidden sm:block">Hi, {user.fullName}</p>
+
+            <p className="hidden sm:block font-medium">
+              Hi, {user.fullName.split(" ")[0]}
+            </p>
             <UserButton />
           </div>
         ) : (
