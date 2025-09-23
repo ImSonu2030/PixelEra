@@ -25,9 +25,11 @@ const createOrder = async (req,res) => {
             },
             order_meta:{
                 "notify_url": `${backendURL}/api/payment/cf_notify`,
+            },
+            order_tags:{
                 "plan_type": `${order_type}`,
-                "credits_to_add": `${credits}`,
-                "original_price": `${order_amount}`
+                "credits": `${credits}`,
+                "plan_price": `${order_amount}`
             }
         }
 
@@ -63,7 +65,6 @@ const cashfreeWebhook = async (req,res) => {
         );
         
         console.log("webhook verified");
-        console.log("Webhook payload received");
         console.log(req.body);
 
         const {data,event_time,type}=req.body;
@@ -80,7 +81,7 @@ const cashfreeWebhook = async (req,res) => {
         //     payment_status:data.payment.payment_status,
         //     type,
         // }
-        console.log(paymentDetails);
+        // console.log(paymentDetails);
         
         res.status(200).json({
             success:true,
