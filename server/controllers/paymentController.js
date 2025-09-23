@@ -12,7 +12,6 @@ const createOrder = async (req,res) => {
     try {
         const {clerkid}=req.user;
         const {order_amount,order_type,credits}=req.body;
-        console.log(req);
         
         const order={
             order_id:`orderId-${clerkid}_${Date.now()}`,
@@ -69,18 +68,18 @@ const cashfreeWebhook = async (req,res) => {
 
         const {data,event_time,type}=req.body;
 
-        const paymentDetails={
-            order_id:data.order.order_id,
-            paymentId:data.payment.cf_payment_id,
-            order_amount:data.payment.payment_amount,
-            order_currency:data.payment.payment_currency,
-            plan,
-            creditDeposit,
-            customer_id:data.customer_details.customer_id,
-            event_time,
-            payment_status:data.payment.payment_status,
-            type,
-        }
+        // const paymentDetails={
+        //     order_id:data.order.order_id,
+        //     paymentId:data.payment.cf_payment_id,
+        //     order_amount:data.payment.payment_amount,
+        //     order_currency:data.payment.payment_currency,
+        //     plan,
+        //     creditDeposit,
+        //     customer_id:data.customer_details.customer_id,
+        //     event_time,
+        //     payment_status:data.payment.payment_status,
+        //     type,
+        // }
         console.log(paymentDetails);
         
         res.status(200).json({
