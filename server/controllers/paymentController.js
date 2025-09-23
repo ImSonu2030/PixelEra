@@ -78,8 +78,8 @@ const cashfreeWebhook = async (req,res) => {
         console.log(transactionDetail);
         
         // Store the transaction detail
-        if(transactionDetail.payment_status) {
-            await transactionModel.create(transactionDetail);
+        await transactionModel.create(transactionDetail);
+        if(transactionDetail.payment_status==="SUCCESS") {
             const user=await userModel.findOne({clerkid:transactionDetail.customer_id});
             await userModel.findOneAndUpdate({clerkid:user.clerkid},{creditBalance:user.creditBalance+transactionDetail.credits});
         }
