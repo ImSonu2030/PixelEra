@@ -2,7 +2,7 @@ import userModel from "../models/userModel.js"
 import {Cashfree,CFEnvironment} from 'cashfree-pg'
 const backendURL="https://pixelera.vercel.app"
 
-const cashfreeOrdersInstance=new Cashfree(
+const cashfree=new Cashfree(
     CFEnvironment.SANDBOX,
     process.env.CASHFREE_APP_ID,
     process.env.CASHFREE_SECRET_KEY
@@ -33,7 +33,7 @@ const createOrder = async (req,res) => {
             }
         }
 
-        const orderReceipt = await cashfreeOrdersInstance.PGCreateOrder(order);
+        const orderReceipt = await cashfree.PGCreateOrder(order);
         res.json({
             order_status:true,
             order_id:orderReceipt.data.order_id,
@@ -47,18 +47,13 @@ const createOrder = async (req,res) => {
         })
     }
 }
-const cashfreeWebhookInstance=new Cashfree(
-    CFEnvironment.SANDBOX,
-    process.env.CASHFREE_APP_ID,
-    process.env.CASHFREE_SECRET_KEY
-)
 
 const cashfreeWebhook = async (req,res) => {
     try {
         console.log("raw body: ");
         console.log(req.rawBody);
         
-        cashfreeWebhookInstance.PGVerifyWebhookSignature(
+        cashfree.PGVerifyWebhookSignature(
             req.headers["x-webhook-signature"], 
             req.rawBody, 
             req.headers["x-webhook-timestamp"]
