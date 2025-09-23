@@ -1,7 +1,18 @@
-import React from "react";
+import React ,{ useContext } from "react";
 import { assets, plans } from "../assets/assets.jsx";
+import { AppContext } from "../context/AppContext.jsx";
 
 export const BuyCredit = () => {
+  const {createOrder}=useContext(AppContext);
+
+  const makePayment=(amount,credit,id) =>{
+    const order={
+      "order_amount":amount,
+      "credits":credit,
+      "order_type":id,
+    }
+    createOrder(order);
+  }
   return (
     <div className="min-h-[80vh] bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -64,7 +75,7 @@ export const BuyCredit = () => {
               <div className="text-center mb-8">
                 <div className="flex items-baseline justify-center">
                   <span className="text-5xl font-bold text-gray-900 dark:text-white">
-                    ${item.price}
+                  &#8377;{item.price}
                   </span>
                   <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">
                     /month
@@ -72,9 +83,14 @@ export const BuyCredit = () => {
                 </div>
               </div>
 
-              {/* Features List (you can add this if you have features data) */}
               <div className="mb-8">
                 <ul className="space-y-3">
+                  <li className="flex items-center text-gray-600 dark:text-gray-300">
+                    <svg className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    {item.credits} Credits
+                  </li>
                   <li className="flex items-center text-gray-600 dark:text-gray-300">
                     <svg className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -101,7 +117,7 @@ export const BuyCredit = () => {
                 indx === 1
                   ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:from-blue-600 hover:to-purple-600 focus:ring-blue-500'
                   : 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg hover:bg-gray-800 dark:hover:bg-gray-100 focus:ring-gray-500'
-              }`}>
+              }`} onClick={()=>makePayment(item.amount,item.credits,item.id)}>
                 Purchase Now
               </button>
             </div>
