@@ -96,7 +96,8 @@ const AppContextProvider = (props) => {
             console.log("Payment will be redirected");
         }
         if(checkoutStatus.paymentDetails) {
-            toast.success("Payment Successful. Credits will be added to Your account");
+            toast.success("Payment Successful. Credits will be added to your account");
+            await loadCreditData();
             navigate('/')
         }
     }
