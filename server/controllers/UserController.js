@@ -90,12 +90,12 @@ const createOrder = async (req,res) => {
             order_currency: "INR",
             customer_details: {
                 customer_id: "node_sdk_test",
-                customer_name: "",
+                customer_name: "Test User",
                 customer_email: "example@gmail.com",
                 customer_phone: "9999999999",
             },
             order_meta:{
-                "notify_url": `${backendURL}/api/user/cf_notify"`,
+                "notify_url": `${backendURL}/api/user/cf_notify`,
             }
         }
 
@@ -119,7 +119,7 @@ const cashfreeWebhook = async (req,res) => {
 
         cashfreeInstance.PGVerifyWebhookSignature(
             req.headers["x-webhook-signature"], 
-            stringify(req.body), 
+            req.body, 
             req.headers["x-webhook-timestamp"]
         );
         console.log("webhook verified");

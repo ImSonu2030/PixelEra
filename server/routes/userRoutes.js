@@ -4,8 +4,8 @@ import { cashfreeWebhook, clerkWebhooks, createOrder, userCredits } from '../con
 
 const userRouter = express.Router()
 
-userRouter.post('/webhooks',clerkWebhooks)
+userRouter.post('/webhooks',clerkWebhooks);
 userRouter.post('/cf_notify',cashfreeWebhook);
-userRouter.get('/credits',authUser,userCredits)
-userRouter.post('/create-order',authUser,createOrder)
+userRouter.get('/credits',authUser,userCredits);
+userRouter.post('/create-order',authUser,createOrder);
 export default userRouter
