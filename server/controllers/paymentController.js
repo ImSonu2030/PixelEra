@@ -13,7 +13,7 @@ const createOrder = async (req,res) => {
         const {clerkid}=req.user;
         const order={
             order_id:`orderId-${clerkid}_${Date.now()}`,
-            order_amount: "1",
+            order_amount: `${req.body.order_amount}`,
             order_currency: "INR",
             customer_details: {
                 customer_id: "node_sdk_test",
@@ -23,6 +23,12 @@ const createOrder = async (req,res) => {
             },
             order_meta:{
                 "notify_url": `${backendURL}/api/payment/cf_notify`,
+                user_id:clerkid,
+                plan_details:{
+                    plan:`${req.body.order_type}`,
+                    credit:`${req.body.credits}`,
+                    price:`${req.body.order_amount}`,
+                }
             }
         }
 
@@ -59,6 +65,21 @@ const cashfreeWebhook = async (req,res) => {
         
         console.log("webhook verified");
         console.log(req.body);
+        // const {data,event_time,type}=req.body;
+
+        // const paymentDetails={
+        //     order_id:data.order.order_id,
+        //     paymentId:data.payment.cf_payment_id,
+        //     order_amount:data.payment.payment_amount,
+        //     order_currency:data.payment.payment_currency,
+        //     plan,
+        //     creditDeposit,
+        //     customer_id,
+        //     event_time,
+        //     payment_status,
+        //     type,
+        // }
+
         res.status(200).json({
             success:true,
             message:"Success!"
