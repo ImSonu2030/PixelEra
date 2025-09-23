@@ -1,5 +1,6 @@
 import userModel from "../models/userModel.js"
 import {Cashfree,CFEnvironment} from 'cashfree-pg'
+import transactionModel from "../models/transactionModel.js"
 const backendURL="https://pixelera.vercel.app"
 
 const cashfree=new Cashfree(
@@ -50,7 +51,7 @@ const createOrder = async (req,res) => {
 
 const cashfreeWebhook = async (req,res) => {
     try {
-        console.log("raw body: ");
+        console.log("Raw body: ");
         console.log(req.rawBody);
         
         cashfree.PGVerifyWebhookSignature(
@@ -60,31 +61,39 @@ const cashfreeWebhook = async (req,res) => {
         );
         
         console.log("webhook verified");
-        console.log(req.body);
-
         const {data,event_time,type}=req.body;
+        const transactionDetail = {
+            order_id: data.order.order_id,
+            paymentId: data.payment.cf_payment_id,
+            order_amount: data.order.order_amount,
+            plan_type: data.order.order_tags.plan_type,
+            credits: parseInt(data.order.order_tags.credits, 10),
+            customer_id: data.customer_details.customer_id,
+            event_time: event_time,
+            payment_status: data.payment.payment_status,
+            type: type
+        };
 
-        // const paymentDetails={
-        //     order_id:data.order.order_id,
-        //     paymentId:data.payment.cf_payment_id,
-        //     order_amount:data.payment.payment_amount,
-        //     order_currency:data.payment.payment_currency,
-        //     plan,
-        //     creditDeposit,
-        //     customer_id:data.customer_details.customer_id,
-        //     event_time,
-        //     payment_status:data.payment.payment_status,
-        //     type,
-        // }
-        // console.log(paymentDetails);
+        console.log("transactionDetail variable:");
+        console.log(transactionDetail);
         
+        // Store the transaction detail
+        if(transactionDetail.payment_status) {
+            await transactionModel.create(transactionDetail);
+            const user=await userModel.findOne({clerkid:transactionDetail.customer_id});
+            await userModel.findOneAndUpdate({clerkid:user.clerkid},{creditBalance:user.creditBalance+credits});
+        }
+
         res.status(200).json({
             success:true,
-            message:"Success!"
+            message:"Webhook received successfully!!"
         })
     } catch (error) {
         console.log("Error Verifying: ",error.message);
-        res.status(500).json({});
+        res.status(500).json({
+            success:false,
+            message:"Error processing webhook."
+        });
     }
 }
 
