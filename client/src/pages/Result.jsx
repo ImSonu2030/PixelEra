@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import { assets } from "../assets/assets.jsx";
 import { AppContext } from "../context/AppContext.jsx";
 
 export const Result = () => {
