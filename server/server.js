@@ -9,15 +9,16 @@ import paymentRouter from "./routes/paymentRoute.js";
 const PORT = process.env.PORT || 4000;
 const app = express();
 
-// Intialize Middlerwares
 app.use(cors());
-app.use(express.json());
 await connectDB();
 
+// Payment APIs
+app.use("/api/payment",paymentRouter);
+
 // API routes
+app.use(express.json());
 app.get("/", (req, res) => res.send("API Working"));
 app.use("/api/user", userRouter);
 app.use("/api/image",imageRouter);
-app.use("/api/payment",paymentRouter);
 
 app.listen(PORT, () => console.log("server working at port " + PORT));
