@@ -43,7 +43,7 @@ const createOrder = async (req,res) => {
 const cashfreeWebhookInstance=new Cashfree(
     CFEnvironment.SANDBOX,
     process.env.CASHFREE_APP_ID,
-    process.env.CASHFREE_WEBHOOK_SECRET
+    process.env.CASHFREE_SECRET_KEY
 )
 
 const cashfreeWebhook = async (req,res) => {
