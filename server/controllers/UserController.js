@@ -1,5 +1,7 @@
 import { Svix, Webhook } from "svix"
 import userModel from "../models/userModel.js"
+import {Cashfree,CFEnvironment} from 'cashfree-pg'
+const backendURL="https://pixelera.vercel.app"
 
 const clerkWebhooks=async (req,res) => {
     try {
@@ -73,4 +75,57 @@ const userCredits=async (req,res) => {
     }
 }
 
-export {clerkWebhooks,userCredits}
+const cashfreeInstance=new Cashfree(
+    CFEnvironment.SANDBOX,
+    process.env.CASHFREE_APP_ID,
+    process.env.CASHFREE_SECRET_KEY
+)
+
+const createOrder = async (req,res) => {
+    try {
+        const {clerkid}=req.user;
+        const order={
+            order_id:`orderId-${clerkid}_${Date.now()}`,
+            order_amount: "1",
+            order_currency: "INR",
+            customer_details: {
+                customer_id: "node_sdk_test",
+                customer_name: "",
+                customer_email: "example@gmail.com",
+                customer_phone: "9999999999",
+            },
+            order_meta:{
+                "notify_url": `${backendURL}/api/user/cf_notify"`,
+            }
+        }
+
+        const orderReceipt = await cashfreeInstance.PGCreateOrder(order);
+        res.json({
+            order_status:true,
+            order_id:orderReceipt.data.order_id,
+            payment_session_id: orderReceipt.data.payment_session_id,
+        })
+    } catch (error) {
+        console.log("Error creating order: ",error.message);
+        res.status(500).json({
+            success:false,
+            message:error.message || "Internal server error"
+        })
+    }
+}
+
+const cashfreeWebhook = async (req,res) => {
+    try {
+
+        cashfreeInstance.PGVerifyWebhookSignature(
+            req.headers["x-webhook-signature"], 
+            stringify(req.body), 
+            req.headers["x-webhook-timestamp"]
+        );
+        console.log("webhook verified");
+    } catch (error) {
+        console.log("Error Verifying: ",error.message);
+        res.status(500).json({});
+    }
+}
+export {clerkWebhooks,userCredits,createOrder,cashfreeWebhook};
