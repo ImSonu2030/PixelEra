@@ -11,24 +11,24 @@ const cashfreeOrdersInstance=new Cashfree(
 const createOrder = async (req,res) => {
     try {
         const {clerkid}=req.user;
+        const {order_amount,order_type,credits}=req.body;
+        console.log(req);
+        
         const order={
             order_id:`orderId-${clerkid}_${Date.now()}`,
-            order_amount: `${req.body.order_amount}`,
+            order_amount: `${order_amount}`,
             order_currency: "INR",
             customer_details: {
-                customer_id: "node_sdk_test",
+                customer_id: clerkid,
                 customer_name: "Test User",
                 customer_email: "example@gmail.com",
                 customer_phone: "9999999999",
             },
             order_meta:{
                 "notify_url": `${backendURL}/api/payment/cf_notify`,
-                user_id:clerkid,
-                plan_details:{
-                    plan:`${req.body.order_type}`,
-                    credit:`${req.body.credits}`,
-                    price:`${req.body.order_amount}`,
-                }
+                "plan_type": `${order_type}`,
+                "credits_to_add": `${credits}`,
+                "original_price": `${order_amount}`
             }
         }
 
@@ -64,8 +64,10 @@ const cashfreeWebhook = async (req,res) => {
         );
         
         console.log("webhook verified");
+        console.log("Webhook payload received");
         console.log(req.body);
-        // const {data,event_time,type}=req.body;
+
+        const {data,event_time,type}=req.body;
 
         // const paymentDetails={
         //     order_id:data.order.order_id,
@@ -74,9 +76,9 @@ const cashfreeWebhook = async (req,res) => {
         //     order_currency:data.payment.payment_currency,
         //     plan,
         //     creditDeposit,
-        //     customer_id,
+        //     customer_id:data.customer_details.customer_id,
         //     event_time,
-        //     payment_status,
+        //     payment_status:data.payment.payment_status,
         //     type,
         // }
 

@@ -107,6 +107,8 @@ const AppContextProvider = (props) => {
             }
 
             const token=await getToken();
+            console.log(orderRequest);
+            
             const {data}=await axios.post(`${backendUrl}/api/payment/create-order`,orderRequest,{
                 headers:{
                     token

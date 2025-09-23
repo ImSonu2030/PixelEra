@@ -117,7 +117,7 @@ export const BuyCredit = () => {
                 indx === 1
                   ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:from-blue-600 hover:to-purple-600 focus:ring-blue-500'
                   : 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg hover:bg-gray-800 dark:hover:bg-gray-100 focus:ring-gray-500'
-              }`} onClick={()=>makePayment(item.amount,item.credits,item.id)}>
+              }`} onClick={()=>makePayment(item.price,item.credits,item.id)}>
                 Purchase Now
               </button>
             </div>

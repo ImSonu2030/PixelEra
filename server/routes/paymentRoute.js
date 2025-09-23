@@ -9,6 +9,8 @@ paymentRouter.post('/cf_notify',express.json({
         req.rawBody=buf.toString();
     }
 }),cashfreeWebhook);
+
+paymentRouter.use(express.json());
 paymentRouter.post('/create-order',authUser,createOrder);
 
 export default paymentRouter;
