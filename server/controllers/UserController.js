@@ -119,7 +119,7 @@ const cashfreeWebhook = async (req,res) => {
 
         cashfreeInstance.PGVerifyWebhookSignature(
             req.headers["x-webhook-signature"], 
-            req.body, 
+            req.rawBody, 
             req.headers["x-webhook-timestamp"]
         );
         console.log("webhook verified");
