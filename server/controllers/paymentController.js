@@ -48,14 +48,21 @@ const cashfreeWebhookInstance=new Cashfree(
 
 const cashfreeWebhook = async (req,res) => {
     try {
+        console.log("raw body: ");
+        console.log(req.rawBody);
+        
         cashfreeWebhookInstance.PGVerifyWebhookSignature(
             req.headers["x-webhook-signature"], 
             req.rawBody, 
             req.headers["x-webhook-timestamp"]
         );
+        
         console.log("webhook verified");
         console.log(req.body);
-        
+        res.status(200).json({
+            success:true,
+            message:"Success!"
+        })
     } catch (error) {
         console.log("Error Verifying: ",error.message);
         res.status(500).json({});
