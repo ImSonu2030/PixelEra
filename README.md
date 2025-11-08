@@ -1,7 +1,7 @@
 # PixelEra
 PixelEra is a full-stack MERN application that provides AI-powered image background removal. It operates on a credit-based system, allowing users to sign up, receive free credits to try the service, and purchase more credits using the Cashfree payment gateway.
 
-🔗 **[Live Demo](https://pixelera.vercel.app/)**
+🔗 **[Live Demo](https://pixel-era.vercel.app)**
 
 ## Core Features
 - **Full-Stack Architecture**:
@@ -19,7 +19,7 @@ PixelEra is a full-stack MERN application that provides AI-powered image backgro
 
 #### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/pixelera.git
+git clone https://github.com/ImSonu2030/PixelEra.git
 cd pixelera
 ```
 
