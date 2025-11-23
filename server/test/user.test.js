@@ -14,7 +14,7 @@ describe('Unit Test: User Controller', () => {
 
     beforeEach(() => {
         originalEnvSecret = process.env.CLERK_WEBHOOK_SIGNING_SECRET;
-        process.env.CLERK_WEBHOOK_SIGNING_SECRET = 'whsec_' + Buffer.from('test').toString('base64');
+        process.env.CLERK_WEBHOOK_SIGNING_SECRET = 'whsec_test';
 
         req = { 
             headers: { 'svix-id': '1', 'svix-timestamp': '1', 'svix-signature': '1' },
@@ -69,9 +69,7 @@ describe('Unit Test: User Controller', () => {
     it('should handle user.updated event', async () => {
         req.body.type = 'user.updated';
         const updateStub = sinon.stub(userModel, 'findOneAndUpdate').resolves({});
-        
         await clerkWebhooks(req, res);
-
         expect(updateStub.calledWith(
             { clerkid: 'user_123' },
             {
@@ -90,13 +88,14 @@ describe('Unit Test: User Controller', () => {
         expect(deleteStub.calledWith({ clerkid: 'user_123' })).to.be.true;
     });
 
-    it('should handle webhook errors', async () => {
-        verifyStub.rejects(new Error("Svix Error"));
+    it('should handle webhook verification errors', async () => {
+        verifyStub.rejects(new Error("Svix Verification Failed"));
         await clerkWebhooks(req, res);
         expect(statusStub.calledWith(500)).to.be.true;
+        expect(jsonSpy.calledWithMatch({ success: false })).to.be.true;
     });
 
-    it('should return user credits', async () => {
+    it('should return user credits success', async () => {
         sinon.stub(userModel, 'findOne').resolves({ creditBalance: 99 });
         await userCredits(req, res);
         expect(jsonSpy.calledWithMatch({ success: true, credits: 99 })).to.be.true;
@@ -106,5 +105,6 @@ describe('Unit Test: User Controller', () => {
         sinon.stub(userModel, 'findOne').rejects(new Error("DB Error"));
         await userCredits(req, res);
         expect(statusStub.calledWith(500)).to.be.true;
+        expect(jsonSpy.calledWithMatch({ message: "DB Error" })).to.be.true;
     });
 });

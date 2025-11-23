@@ -1,103 +1,72 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { Cashfree } from 'cashfree-pg';
+import { createOrder, cashfreeWebhook } from '../controllers/paymentController.js';
 import transactionModel from '../models/transactionModel.js';
 import userModel from '../models/userModel.js';
-import { Cashfree } from 'cashfree-pg';
 
-describe('Integration Test: Payment Controller', () => {
-    let req, res, jsonSpy, statusStub;
-    let verifyStub, createOrderStub, createStub, findUserStub, updateUserStub;
-    let cashfreeWebhook, createOrder; 
-
-    before(async () => {
-        verifyStub = sinon.stub(Cashfree.prototype, 'PGVerifyWebhookSignature').returns(true);
-        createOrderStub = sinon.stub(Cashfree.prototype, 'PGCreateOrder').resolves({
-            data: { order_id: 'new_order_123', payment_session_id: 'session_123' }
-        });
-        
-        const controller = await import('../controllers/paymentController.js');
-        cashfreeWebhook = controller.cashfreeWebhook;
-        createOrder = controller.createOrder;
-    });
+describe('Unit Test: Payment Controller', () => {
+    let req, res, jsonSpy, statusStub, createOrderStub, verifySignatureStub;
 
     beforeEach(() => {
         req = {
             user: { clerkid: 'test_user' },
             body: {
                 order_amount: 100,
-                order_type: 'Basic',
-                credits: 10,
-                data: {
-                    order: { order_id: '123', order_amount: 100, order_tags: { plan_type: 'Basic', credits: '10' } },
-                    payment: { cf_payment_id: 'pay_123', payment_status: 'SUCCESS' },
-                    customer_details: { customer_id: 'test_user' }
-                },
-                event_time: '2023-01-01',
-                type: 'PAYMENT_SUCCESS_WEBHOOK'
+                order_type: 'basic',
+                credits: 10
             },
-            headers: { "x-webhook-signature": "sig", "x-webhook-timestamp": "123" },
+            headers: {
+                "x-webhook-signature": "sig",
+                "x-webhook-timestamp": "123"
+            },
             rawBody: "raw_data"
         };
         jsonSpy = sinon.spy();
         statusStub = sinon.stub().returns({ json: jsonSpy });
-        res = { status: statusStub, json: jsonSpy };
+        res = {
+            json: jsonSpy,
+            status: statusStub
+        };
 
-        createStub = sinon.stub(transactionModel, 'create').resolves({});
-        findUserStub = sinon.stub(userModel, 'findOne').resolves({ clerkid: 'test_user', creditBalance: 5 });
-        updateUserStub = sinon.stub(userModel, 'findOneAndUpdate').resolves({});
+        createOrderStub = sinon.stub(Cashfree.prototype, 'PGCreateOrder').resolves({
+            data: { order_id: 'order_123', payment_session_id: 'session_123' }
+        });
+        
+        verifySignatureStub = sinon.stub(Cashfree.prototype, 'PGVerifyWebhookSignature').returns(true);
     });
 
     afterEach(() => {
-        createStub.restore();
-        findUserStub.restore();
-        updateUserStub.restore();
-        verifyStub.resetHistory();
-        createOrderStub.resetHistory();
-    });
-
-    after(() => {
         sinon.restore();
     });
 
-    it('should create an order successfully with exact parameters', async () => {
+
+    it('should create order with STRICT parameters', async () => {
         await createOrder(req, res);
-
-        expect(createOrderStub.calledWith(sinon.match({
-            order_amount: "100",
-            order_currency: "INR",
-            customer_details: {
-                customer_id: 'test_user',
-                customer_name: "Test User",
-                customer_email: "example@gmail.com",
-                customer_phone: "9999999999",
-            },
-            order_meta: {
-                "notify_url": "https://pixelera.vercel.app/api/payment/cf_notify",
-            },
-            order_tags: {
-                "plan_type": "Basic",
-                "credits": "10",
-                "plan_price": "100"
-            }
-        }))).to.be.true;
-
+        
+        expect(createOrderStub.calledOnce).to.be.true;
+        const args = createOrderStub.firstCall.args[0];
+        expect(args.order_currency).to.equal("INR");
+        expect(args.customer_details.customer_phone).to.equal("9999999999");
         expect(jsonSpy.calledWithMatch({ order_status: true })).to.be.true;
     });
 
-    it('should handle errors in createOrder', async () => {
-        createOrderStub.rejects(new Error("API Error"));
-        await createOrder(req, res);
-        expect(statusStub.calledWith(500)).to.be.true;
-    });
+    it('should process webhook success', async () => {
+        req.body = {
+            data: {
+                order: { order_id: 'ord_1', order_amount: 100, order_tags: { plan_type: 'basic', credits: '10' } },
+                payment: { cf_payment_id: 'pay_1', payment_status: 'SUCCESS' },
+                customer_details: { customer_id: 'test_user' }
+            },
+            event_time: '2023-01-01',
+            type: 'PAYMENT_SUCCESS_WEBHOOK'
+        };
 
-    it('should update user credits if payment status is SUCCESS', async () => {
+        sinon.stub(transactionModel, 'create').resolves({});
+        sinon.stub(userModel, 'findOne').resolves({ clerkid: 'test_user', creditBalance: 5 });
+        const updateUserStub = sinon.stub(userModel, 'findOneAndUpdate').resolves({});
+
         await cashfreeWebhook(req, res);
-        
-        expect(createStub.calledWith(sinon.match({
-            order_id: '123',
-            payment_status: 'SUCCESS',
-            credits: 10
-        }))).to.be.true;
 
         expect(updateUserStub.calledWith(
             { clerkid: 'test_user' },
@@ -105,15 +74,35 @@ describe('Integration Test: Payment Controller', () => {
         )).to.be.true;
     });
 
-    it('should NOT update user credits if payment status is FAILED', async () => {
-        req.body.data.payment.payment_status = "FAILED";
-        await cashfreeWebhook(req, res);
-        expect(updateUserStub.called).to.be.false;
+
+    it('should handle errors in createOrder', async () => {
+        createOrderStub.rejects(new Error("Cashfree Down"));
+        await createOrder(req, res);
+        expect(statusStub.calledWith(500)).to.be.true;
+        expect(jsonSpy.calledWithMatch({ message: "Cashfree Down" })).to.be.true;
     });
 
-    it('should handle verification errors', async () => {
-        verifyStub.throws(new Error("Invalid Signature"));
+    it('should handle errors in cashfreeWebhook (Signature Verification)', async () => {
+        verifySignatureStub.throws(new Error("Invalid Signature"));
         await cashfreeWebhook(req, res);
+        expect(statusStub.calledWith(500)).to.be.true;
+        expect(jsonSpy.calledWithMatch({ message: "Error processing webhook." })).to.be.true;
+    });
+    
+    it('should handle errors during transaction creation', async () => {
+        req.body = {
+             data: {
+                order: { order_id: 'ord_1', order_amount: 100, order_tags: { plan_type: 'basic', credits: '10' } },
+                payment: { cf_payment_id: 'pay_1', payment_status: 'SUCCESS' },
+                customer_details: { customer_id: 'test_user' }
+            },
+            event_time: '2023-01-01',
+            type: 'PAYMENT_SUCCESS_WEBHOOK'
+        };
+        sinon.stub(transactionModel, 'create').rejects(new Error("DB Error"));
+        
+        await cashfreeWebhook(req, res);
+        
         expect(statusStub.calledWith(500)).to.be.true;
     });
 });

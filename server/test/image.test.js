@@ -78,4 +78,16 @@ describe('Unit Test: Image Controller', () => {
         creditBalance: 4
     })).to.be.true;
   });
+
+  it('should handle internal server errors gracefully', async () => {
+    sinon.stub(userModel, 'findOne').rejects(new Error("Database Connection Failed"));
+    
+    await removeBgImage(req, res);
+
+    expect(statusStub.calledWith(500)).to.be.true;
+    expect(jsonSpy.calledWithMatch({ 
+        success: false, 
+        message: "Database Connection Failed" 
+    })).to.be.true;
+  });
 });
