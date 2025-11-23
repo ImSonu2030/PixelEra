@@ -8,7 +8,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "server": "nodemon server.js"
+    "server": "nodemon server.js",
+    "test": "mocha 'test/**/*.js' --exit",
+    "test:mutation": "stryker run"
   },
   "dependencies": {
     "@cashfreepayments/cashfree-js": "^1.0.5",
@@ -24,5 +26,13 @@
     "nodemon": "^3.1.10",
     "razorpay": "^2.9.6",
     "svix": "^1.75.0"
+  },
+  "devDependencies": {
+    "@stryker-mutator/core": "^9.3.0",
+    "@stryker-mutator/mocha-runner": "^9.3.0",
+    "chai": "^6.2.1",
+    "mocha": "^11.7.5",
+    "sinon": "^21.0.0",
+    "supertest": "^7.1.4"
   }
 }
